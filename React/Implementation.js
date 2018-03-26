@@ -51,6 +51,41 @@ class CompositeComponent {
 
     return renderedComponent.mount();
   }
+
+  unmount() {
+    var publicInstance = this.publicInstance;
+    if (publicInstance) {
+      if (publicInstance.componentWillUnMount) {
+        publicInstance.componentWillUnMount();
+      }
+    }
+
+    var renderedComponent = this.renderedComponent;
+    renderedComponent.unmount();
+  }
+
+  receive(nextElement) {
+    var prevProps = this.currentElement.props;
+    var publicInstance = this.publicInstance;
+    var prevRenderedCompoennt = this.renderedComponent;
+    var prevRenderedElement = prevRenderedCompoennt.currentElement;
+
+    this.createElement = nextElement;
+    var type = nextElement.type;
+    var nextProps = nextElement.props;
+
+    var nextRenderedElement;
+    if (isClass(type)) {
+      if (publicInstance.componentWillUpdate) {
+        publicInstance.componentWillUpdate(nextProps);
+      }
+
+      publicInstance.props = nextProps;
+      nextRenderedElement = publicInstance.render();
+    } else if (typeof type === 'function') {
+      nextRenderedElement = type(nextProps);
+    }
+  }
 }
 
 class DOMComponent {
@@ -90,4 +125,31 @@ class DOMComponent {
 
     return node;
   }
+
+  unmount() {
+    var renderedChildren = this.renderedChildren;
+    renderedChildren.forEach(child => child.unmount());
+  }
+}
+
+function mountTree(element, containerNode) {
+  if (containerNode.firstChild) {
+    unmountTree(containerNode);
+  }
+  
+  var rootComponent = instantiateComponent(element);
+  var node = rootComponent.mount();
+  containerNode.appendChild(node);
+
+  node._internalInstance = rootComponent;
+  var publicInstance = rootComponent.getPublicInstance();
+  return publicInstance;
+}
+
+function unmountTree(containerNode) {
+  var node = containerNode.firstChild;
+  var rootComponent = node._internalInstance;
+
+  rootComponent.unmount();
+  containerNode.innerHTML= '';
 }
