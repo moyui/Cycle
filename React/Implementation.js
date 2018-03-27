@@ -25,6 +25,10 @@ class CompositeComponent {
     return this.publicInstance;
   }
 
+  getHostNode() {
+    return this.renderedComponent.getHostNode();
+  }
+
   mount() {
     var element = this.currentElement;
     var type = element.type;
@@ -85,6 +89,18 @@ class CompositeComponent {
     } else if (typeof type === 'function') {
       nextRenderedElement = type(nextProps);
     }
+    if (prevRenderedElement.type === nextRenderedElement.type) {
+      prevRenderedCompoennt.receive(nextRenderedElement);
+      return;
+    } else {
+      var prevNode = prevRenderedCompoennt.getHostNode();
+      prevRenderedCompoennt.unmount();
+      var nextRenderedComponent = instantiateComponent(nextRenderedElement);
+      var nextNode = nextRenderedComponent.mount();
+      this.renderedComponent = nextRenderedComponent;
+
+      prevNode.parentNode.replaceChild(nextNode, prevNode);
+    }
   }
 }
 
@@ -96,6 +112,10 @@ class DOMComponent {
   }
 
   getPublicInstance() {
+    return this.node;
+  }
+
+  getHostNode() {
     return this.node;
   }
 
@@ -130,6 +150,8 @@ class DOMComponent {
     var renderedChildren = this.renderedChildren;
     renderedChildren.forEach(child => child.unmount());
   }
+
+  
 }
 
 function mountTree(element, containerNode) {
