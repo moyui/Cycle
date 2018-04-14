@@ -1,0 +1,41 @@
+<body>
+  <div id="ball"></div>
+  输入小球移动后的位置:<input id="pos"/>
+  <button id="moveBtn">开始</button>
+  <button id="cancelBtn">取消</button>
+</body>
+
+<script>
+  var ball = document.getElementById('ball');
+  var pos = document.getElementById('pos');
+  var moveBtn = document.getElementById('moveBtn');
+  var cancelBtn = document.getElementById('cancelBtn');
+
+  var MoveConmmand = function(receiver, pos) {
+    this.receiver = receiver;
+    this.pos = pos;
+    this.oldPos = null;
+  }
+
+  MoveConmmand.prototype.execute = function() {
+    this.receiver.start('left', this.pos, 1000, 'strongEaseOut');
+    this.oldPos = this.receiver.dom.getBoundingClientRect()[this.receiver.propertyName];
+  }
+
+  MoveCommand.prototype.undo = function() {
+    this.receiver.start('left', this.oldPos, 1000, 'strongEaseOut');
+  }
+
+  var moveCommand;
+
+  moveBtn.onclick = function() {
+    var animate = new Animate(ball);
+
+    moveCommand = new MoveConmmand(animate, pos.value);
+    moveCommand.execute();
+  }
+
+  cancelBtn.onclick = function() {
+    moveCommand.undo();
+  };
+</script>
