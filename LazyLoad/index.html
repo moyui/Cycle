@@ -1,0 +1,27 @@
+<img class="m-lazyload" data-src="imgUrl">
+
+<script>
+  window.addEventListener('scroll',Delay,false);
+  function Delay() {
+    clearTimeout(_delay);
+    _delay = setTimeout(function() {
+      _loadImage();
+    }, time);
+  }
+
+  function _loadImage() {
+    for (var i=imgList.length; i--;) {
+      var el = imgList[i];
+      if (_isShow(el)) {
+        el.src = el.getAttribute('data-src');
+        el.className = el.className.replace(new RegExp("(\\s|^)") + _selector.substring(1, _selector.length) + "(\\s|$)"), " ");
+        imgList.splice(i, 1);
+      }
+    }
+  }
+
+  function _isShow(el) {
+    var coords = el.getBoundingClientRect();
+    return ((coords.top >= 0 && coords.left >= 0 && coords.top) <= (widow.innerHeight || document.documentElement.clientHeight + parseInt(offset))) 
+  }
+</script>

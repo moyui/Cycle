@@ -161,3 +161,11 @@ function dp(obj) {
 }
 return dp(obj);
 }
+
+var clone = function(v) {
+  var o = v.constructor === Array ? [] : {};
+  for (var i in v) {
+    o[i] = typeof v[i] === "Object" ? clone(v[i]) : v[i];
+  }
+  return o;
+}

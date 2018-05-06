@@ -1,0 +1,73 @@
+<script>
+  var id = 0;
+  window.startUpload = function(unloadType, files) {
+    for (var i = 0, file; file = files[i++];) {
+      var uploadObj = UploadManager.add(++id, uploadType, file.fileName, file.fileSize);
+    }
+  }
+
+  var Upload = function(UploadType) {
+    this.UploadType = UploadType;
+  };
+
+  Upload.prototype.delFile = function() {
+    UploadManager.setEnternalState(id, this);
+
+    if (this.fileSize < 3000) {
+      return this.dom.parentNode.removeChild(this.dom);
+    }
+
+    if (window.confirm('确定要删除文件吗?' + this.fileName)) {
+      return this.dom.parentNode.removeChild(this.dom);
+    }
+  }
+
+  var UploadFactory = (function() {
+    var createdFlyWeightObjs = {};
+
+    return {
+      create: function(uploadType) {
+        if (createdFlyWeightObjs[uploadType]) {
+          return createdFlyWeightObjs[uploadType];
+        }
+        return createdFlyWeightObjs[uploadType] = new Upload(uploadType);
+      }
+    }
+  })();
+
+  var UploadManager = (function() {
+    var uploadDataBase = {};
+
+    return {
+      add: function(id, uploadType, fileName, fileSize) {
+        var flyWeightObj = UploadFactory.create(uploadType);
+
+        var dom = document.createElement('div');
+        dom.innerHTML = 
+          '<span>....';
+        this.dom.querySelector('.delFile').onClick = function() {
+          flyWeightObj.delFile(id);
+        }
+
+        document.body.appendChild(dom);
+
+        uploadDataBase[id] = {
+          fileName: fileName,
+          fileSize: fileSize,
+          dom: dom
+        }
+      },
+
+      setEnternalState: function(id, flyWeightObj) {
+        var uploadData = uploadDataBase[id];
+        for (var i in uploadData) {
+          flyWeightObj[i] = uploadData[i];
+        }
+      }
+    }
+  })();
+
+  startUpload('plugin', [/* 省略 */]);
+  startUpload('flash', [/* 省略 */]);
+
+</script>

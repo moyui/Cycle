@@ -1,4 +1,3 @@
-;
 (function(ROOT) {
   const jQuery = function(selector) {
     return new jQuery.fn.init(selector);
